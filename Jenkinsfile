@@ -1,37 +1,50 @@
+@Library('my-shared-library') _
+// include library function 
+
 pipeline {
     agent any
 
     stages {
         stage ('SCM pull') {
             steps {
-                scmLibrary.scmPull()
-                //SCM pull
+                script {
+                    scmLibrary.scmPull()
+                    //SCM pull
+                }
             }
         }
         stage ('Parallel Scan') {
          parallel {
             stage ('Docker Build') {
                 steps {
-                    dockerLibrary.dockerBuild()
-                    //docker build
+                    script {
+                        dockerLibrary.dockerBuild()
+                        //docker build
+                    }
                 }
             }
             stage ('trivy scan') {
                 steps {
-                    scanLibrary.trivyScan()
-                    //trivy scan
+                    script {
+                        scanLibrary.trivyScan()
+                        //trivy scan
+                    }
                 }
             }
             stage ('bandit scan') {
                 steps {
-                    scanLibrary.banditScan()
-                    //bandit scan
+                    script {
+                        scanLibrary.banditScan()
+                        //bandit scan
+                    }
                 }
             }
             stage ('sonarqube') {
                 steps {
-                    scanLibrary.sonarqube()
-                    // sonarqube
+                    script {
+                        scanLibrary.sonarqube()
+                        // sonarqube
+                    }
                 }
             }
          }
@@ -40,20 +53,26 @@ pipeline {
             parallel {
                 stage ('Docker Push') {
                     steps {
-                        dockerLibrary.dockerPush()
-                        // Docker push
+                        script{
+                            dockerLibrary.dockerPush()
+                            // Docker push
+                        }
                     }
                 }
                 stage ('Unit Test') {
                     steps {
-                        echo "Unit Test"
-                        // Unit Test
+                        script{
+                            unitLibrary.unitTest()
+                            // Unit Test
+                        }
                     }
                 }
                 stage ('Sign Artifact') {
                     steps {
-                        echo "Sign Artifact"
-                        // Sign Artifact
+                        script{
+                            dockerLibrary.signArtifact()
+                            // Sign Artifact
+                        }
                     }
                 }
             }
@@ -61,20 +80,26 @@ pipeline {
        
         stage ('Deploy') {
             steps {
-                echo "Deploy"
-                // Deploy
+                script{
+                    deployLibrary.deploy()
+                    // Deploy
+                }
             }
         }
         stage ('Test') {
             steps {
-                echo "Test"
-                // Test
+                script{
+                    testLibrary.test()
+                    // Test
+                }
             }
         }
         stage ('Post install') {
             steps {
-                echo "Post install"
-                // Post install
+                script{
+                    postLibrary.post()
+                    // Post install
+                }
             }
         }
     }

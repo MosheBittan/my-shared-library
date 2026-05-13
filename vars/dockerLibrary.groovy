@@ -7,3 +7,7 @@ def dockerPush() {
 def dockerBuild() {
     echo "docker Build "
 }
+
+def signArtifact() {
+    echo "Sign Artifact"
+}

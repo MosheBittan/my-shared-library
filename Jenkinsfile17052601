@@ -1,0 +1,107 @@
+@Library('my-shared-library') _
+// include library function 
+
+pipeline {
+    agent any
+
+    stages {
+        stage ('Checkout Code') {
+            steps {
+                script {
+                    checkout scm
+                    // This automatically clones the repo based on the SCM configuration in the UI
+                }
+            }
+        }
+        stage ('Parallel Scan') {
+         parallel {
+            stage ('Docker Build') {
+                steps {
+                    script {
+                        dockerLibrary.dockerBuild()
+                        //docker build
+                    }
+                }
+            }
+            stage ('trivy scan') {
+                steps {
+                    script {
+                        scanLibrary.trivyScan()
+                        //trivy scan
+                    }
+                }
+            }
+            stage ('bandit scan') {
+                steps {
+                    script {
+                        scanLibrary.banditScan()
+                        //bandit scan
+                    }
+                }
+            }
+            stage ('sonarqube') {
+                steps {
+                    script {
+                        CodeQuality.sonarCreateProject("testScan")
+                        CodeQuality.sonarLocalScan()
+                        // sonarqube
+                    }
+                }
+            }
+         }
+        }
+        stage ('Parallel Test') {
+            parallel {
+                stage ('Docker Push') {
+                    steps {
+                        script{
+                            dockerLibrary.dockerPush()
+                            // Docker push
+                        }
+                    }
+                }
+                stage ('Unit Test') {
+                    steps {
+                        script{
+                            unitLibrary.unitTest()
+                            // Unit Test
+                        }
+                    }
+                }
+                stage ('Sign Artifact') {
+                    steps {
+                        script{
+                            dockerLibrary.signArtifact()
+                            // Sign Artifact
+                        }
+                    }
+                }
+            }
+        }
+       
+        stage ('Deploy') {
+            steps {
+                script{
+                    deployLibrary.deploy()
+                    // Deploy
+                }
+            }
+        }
+        stage ('Test') {
+            steps {
+                script{
+                    testLibrary.test()
+                    // Test
+                }
+            }
+        }
+        stage ('Post install') {
+            steps {
+                script{
+                    postLibrary.post()
+                    // Post install
+                }
+            }
+        }
+    }
+}

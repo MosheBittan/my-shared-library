@@ -42,8 +42,8 @@ pipeline {
             stage ('sonarqube') {
                 steps {
                     script {
-                        CodeQuality.sonarCreateProject("testScan")
-                        CodeQuality.sonarLocalScan()
+                        codeQuality.sonarCreateProject("testScan")
+                        codeQuality.sonarLocalScan()
                         // sonarqube
                     }
                 }
